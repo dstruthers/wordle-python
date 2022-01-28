@@ -11,7 +11,8 @@ class Hint(Enum):
 
 def system_word_list() -> list[str]:
     """
-    Return all five-letter words from the system dictionary file, excluding proper nouns and punctuation.
+    Return all five-letter words from the system dictionary file, excluding proper nouns and
+    words with punctuation.
     """
     with open('/usr/share/dict/words', 'r') as f:
         return [w.strip() for w in f.readlines() if re.match(r'^[a-z]{5}$', w)]
@@ -46,15 +47,18 @@ class Game:
         freqs = letter_frequencies(self.word_bank)
         
         def score(word: str) -> int:
+            """Produce a numeric score for a word based on frequencies of its unique letters."""
             return functools.reduce(lambda a, b: a + b, [freqs[letter] for letter in set(word)])
         
         score_map = [(word, score(word)) for word in self.word_bank]
         return functools.reduce(lambda a, b: a if a[1] > b[1] else b, score_map)[0]
 
     
-    def respond(self, guess) -> list[tuple[Hint, str]]:
+    def respond(self, guess: str) -> list[tuple[Hint, str]]:
         """Provide a hint based on a guess and the solution."""
+
         def evaluate(g: str, s: str) -> tuple[Hint, str]:
+            """Compare one letter of a guess and the solution and produce the appropriate hint."""
             if g == s:
                 return (Hint.YES, g)
             elif self.solution.find(g) > -1:
